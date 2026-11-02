@@ -130,6 +130,17 @@ nav .on svg{animation:pop .5s var(--e)}
 .cf{display:flex;gap:8px;margin-top:10px}
 .cf input{flex:1;min-width:0;padding:11px 14px;border-radius:20px;border:1px solid #3a3a3a;background:#141414;color:#fff;font:400 14px Prompt;outline:0}
 .cf button{padding:0 16px;border-radius:20px;background:var(--r);color:#000;font-weight:500}
+#gvo,#cr{position:fixed;inset:0;z-index:12;padding-top:env(safe-area-inset-top,0px);background:#000;overflow-y:auto;opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s}
+#gvo.on,#cr.on{opacity:1;visibility:visible;transition-delay:0s}
+.gvi{width:min(100vw,520px);margin:0 auto;padding-bottom:8rem}
+#cr{z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#000f}
+#cr canvas{touch-action:none;border-radius:16px;background:#111}
+#cr p{color:#aaa;font-size:13px;text-align:center;padding:0 24px}
+#cr input{width:min(80vw,340px);accent-color:var(--r)}
+.crb{display:flex;gap:16px}
+.crb button{width:130px;height:50px;border-radius:14px;background:linear-gradient(145deg,#3d3d3d,#000);box-shadow:0 8px 20px #0009;font:500 17px Prompt}
+.ab.add{display:grid;place-items:center;color:#ddd;border-style:dashed;border-color:#555}
+.ab.add svg{width:42%;height:42%}
 button:focus-visible,input:focus-visible{outline:2px solid var(--r);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body>
@@ -139,7 +150,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--r);outline-offs
 <button class="pf" id="hq" aria-label="Perfil"><img class="av" alt=""></button></header>
 <label class="sr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></svg><input id="q" placeholder="Pesquisar Filme, Série ou Anime…" autocomplete="off" enterkeyhint="search"></label>
 <main id="v"></main></div>
-<nav></nav><div id="pl"></div>
+<nav></nav><div id="pl"></div><div id="gvo"></div><div id="cr"></div><input type="file" id="fi" accept="image/*" hidden>
 <div class="mo" id="tg"><div class="mc"><div class="mb"></div>
 <div class="tp"><img class="mav" alt=""><i class="vl"></i><div class="so">
 <button data-s="tiktok" style="background:#1a1a1a" aria-label="TikTok"><svg viewBox="0 0 48 48" width="64%" fill="none" stroke-width="5" stroke-linecap="round"><defs><path id="tn" d="M28 8v22a7 7 0 1 1-7-7M28 8c.6 5 3.600 8 9 8.500"/></defs><use href="#tn" stroke="#25f4ee" transform="translate(-2 -2)"/><use href="#tn" stroke="#fe2c55" transform="translate(2 2)"/><use href="#tn" stroke="#fff"/></svg></button>
@@ -171,7 +182,7 @@ const AG=[['#4a0010','<path fill="#eee" d="M50 18c-17 0-27 11-27 26 0 9 4 15 10 
 ['#0a2a2a','<path fill="#bbb" d="M22 20l18 12h20l18-12-4 30-8 20-14 12H48L34 70l-8-20z"/><path fill="#ffb300" d="M35 50l11 3-9 6zM65 50l-11 3 9 6z"/><path d="M45 72h10l-5 7z"/>'],
 ['#1c1c1c','<circle cx="50" cy="52" r="32" fill="#222"/><rect x="20" y="42" width="60" height="17" rx="8" fill="#d9c7a5"/><circle cx="38" cy="50" r="3.5"/><circle cx="62" cy="50" r="3.5"/><rect x="19" y="31" width="62" height="8" fill="#b00"/>'],
 ['#3a0000','<path fill="#a00" d="M50 22c-18 0-28 12-28 28 0 14 10 26 28 26s28-12 28-26c0-16-10-28-28-28z"/><path fill="#eee" d="M26 22l8 16-13-3zM74 22l-8 16 13-3z"/><path fill="#ffd400" d="M33 46l13 4-11 6zM67 46l-13 4 11 6z"/><path d="M34 66l7 5 9-5 9 5 7-5" fill="none" stroke="#eee" stroke-width="3"/>']];
-const avSrc=i=>i?'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx=".5" cy=".3" r=".9"><stop offset="0" stop-color="${AG[i-1][0]}"/><stop offset="1" stop-color="#000"/></radialGradient></defs><rect width="100" height="100" fill="url(#g)"/>${AG[i-1][1]}</svg>`):AV0;
+const avSrc=i=>i==7?S.g('avc',AV0):i?'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx=".5" cy=".3" r=".9"><stop offset="0" stop-color="${AG[i-1][0]}"/><stop offset="1" stop-color="#000"/></radialGradient></defs><rect width="100" height="100" fill="url(#g)"/>${AG[i-1][1]}</svg>`):AV0;
 const setAv=i=>{st.av=i;S.s('av',i);$$('.av').forEach(e=>e.src=avSrc(i))};
 const ext=u=>{try{window.Capacitor?location.href=u:window.open(u,'_blank')}catch{location.href=u}};
 const toast=m=>{const d=document.createElement('div');d.className='tst';d.textContent=m;document.body.append(d);setTimeout(()=>d.remove(),2400)};
@@ -186,30 +197,37 @@ const HS=()=>{const h=DB.filter(x=>x.b);return(h.length?h:['f','s','a','f'].map(
 const hero=()=>{const h=HS();return `<div class="hero">${h.map((x,i)=>`<div class="sl${i?'':' on'}" style="background:${x.b?`url('${x.b}') center/cover`:HB[i%4]}">${x.b?'':`<div class="ht">${x.n}</div>`}</div>`).join('')}<button class="as">Assista</button><div class="dots">${h.map((_,i)=>`<i class="${i?'':'on'}" data-h="${i}"></i>`).join('')}</div></div>`};
 const sl=i=>{const L=$$('.sl'),D=$$('.dots i');if(!L.length)return;st.hi=i%L.length;L.forEach((e,k)=>e.classList.toggle('on',k==st.hi));D.forEach((e,k)=>e.classList.toggle('on',k==st.hi))};
 function hv(){clearInterval(st.iv);if(st.tab=='t'&&$('.hero'))st.iv=setInterval(()=>sl(st.hi+1),5000)}
-const prof=()=>{const f=DB.filter(x=>st.fav.includes(x.id));return `<div class="pv"><img class="av pa" src="${avSrc(st.av)}" alt=""><h2>Visitante</h2><p>Escolha seu avatar</p><div class="ag">${[0,1,2,3,4,5,6].map(i=>`<button class="ab${i==st.av?' on':''}" data-a="${i}" aria-label="Avatar ${i+1}"><img src="${avSrc(i)}" alt=""></button>`).join('')}</div></div>${f.length?sec('Meus Favoritos',f):'<p class="em">Toque no + ao assistir para adicionar aos favoritos.</p>'}`};
+const prof=()=>{const f=DB.filter(x=>st.fav.includes(x.id));return `<div class="pv"><img class="av pa" src="${avSrc(st.av)}" alt=""><h2>Visitante</h2><p>Escolha seu avatar</p><div class="ag">${[0,1,2,3,4,5,6,...(S.g('avc',0)?[7]:[])].map(i=>`<button class="ab${i==st.av?' on':''}" data-a="${i}" aria-label="Avatar ${i+1}"><img src="${avSrc(i)}" alt=""></button>`).join('')}<button class="ab add" id="addp" aria-label="Adicionar foto da galeria">${I('M4 8h3l2-3h6l2 3h3v11H4zM12 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7')}</button></div></div>${f.length?sec('Meus Favoritos',f):'<p class="em">Toque no + ao assistir para adicionar aos favoritos.</p>'}`};
 function draw(){const q=$('#q').value.trim().toLowerCase(),t=st.tab;let h='';
  if(q)h=gv('Resultados',DB.filter(x=>x.n.toLowerCase().includes(q)));
  else if(t=='p')h=prof();
  else if(t=='t')h=hero()+['f','s','a'].map(k=>{const g=gens(k)[0];return sec(k=='f'?'Top Lançamentos<br>Filmes':g,by(k,g),k+'|'+g)}).join('');
  else h=gens(t).map(g=>sec(g,by(t,g),t+'|'+g)).join('');
  $('#v').innerHTML=h;st.hi=0;hv()}
-function go(t){st.tab=t;$('#q').value='';$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$('.sr').hidden=t=='p';draw();scrollTo({top:0,behavior:'smooth'})}
+function go(t,sl){if(!sl)tabHist(t);st.tab=t;$('#q').value='';$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$('.sr').hidden=t=='p';draw();scrollTo({top:0,behavior:'smooth'})}
 $('#q').oninput=draw;$('#hp').onclick=$('#hq').onclick=()=>go('p');
-document.addEventListener('click',e=>{const t=e.target.closest('[data-id],[data-m],[data-t],[data-a],[data-h],.as,#bk');if(!t)return;
+document.addEventListener('click',e=>{const t=e.target.closest('[data-id],[data-m],[data-t],[data-a],[data-h],.as,#bk,#addp');if(!t)return;
+ if(t.id=='addp')return $('#fi').click();
  if(t.matches('.as')){const h=HS()[st.hi];return h&&open(h.id)}
  if(t.dataset.id)return open(+t.dataset.id);
- if(t.dataset.m){const[k,g]=t.dataset.m.split('|');$('#v').innerHTML=gv(g,by(k,g),1);return scrollTo({top:0})}
+ if(t.dataset.m){const[k,g]=t.dataset.m.split('|');return openGrid(g,by(k,g))}
  if(t.dataset.t)return go(t.dataset.t);
  if(t.dataset.a!=null){setAv(+t.dataset.a);return $$('.ab').forEach(b=>b.classList.toggle('on',b.dataset.a==st.av))}
  if(t.dataset.h!=null){sl(+t.dataset.h);return hv()}
- if(t.id=='bk')draw()});
+ if(t.id=='bk')back()});
 let x0=0;$('#v').addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
 $('#v').addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-x0;if(e.target.closest('.hero')&&Math.abs(d)>40){sl(d<0?st.hi+1:st.hi+HS().length-1);hv()}});
+// NAV-START (botão voltar do celular: fecha camadas do app antes de sair)
+const OV=[];let tp=0,mute=0;
+const pushOv=f=>{OV.push(f);history.pushState(0,'')},back=()=>history.back();
+function tabHist(t){if(t!='t'&&!tp){tp=1;history.pushState(0,'')}else if(t=='t'&&tp){tp=0;mute=1;setTimeout(()=>mute=0,700);history.go(-1)}}
+addEventListener('popstate',()=>{if(mute){mute=0;return}if(OV.length){OV.pop()();return}if(tp){tp=0;go('t',1)}});
+// NAV-END
 // Aviso do Telegram
 $('#tg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
  if(b.dataset.s){SOC[b.dataset.s]&&ext(SOC[b.dataset.s]);return}
  if(b.id=='tgo')ext(TG);
- if(b.id=='tgo'||b.id=='ign'){$('#tg').classList.add('out');setTimeout(()=>$('#tg').remove(),300)}});
+ if(b.id=='tgo'||b.id=='ign')back()});
 // Player
 function open(id){const x=cur=DB.find(i=>i.id==id);if(!x)return;const P=$('#pl'),ser=x.t!='f';
  const SE=x.seasons||[1,2].map(()=>Array.from({length:6},(_,i)=>({n:'Episódio '+(i+1),u:x.u})));
@@ -248,9 +266,26 @@ function open(id){const x=cur=DB.find(i=>i.id==id);if(!x)return;const P=$('#pl')
  $('#ci').onkeydown=ev=>ev.key=='Enter'&&$('#cs').click();
  if(ser){$('#sn').onclick=ev=>{const b=ev.target.closest('[data-s]');if(!b)return;s=+b.dataset.s;e=0;$$('#sn button').forEach(k=>k.classList.toggle('on',k==b));epl();cm();ld(qd)};
   $('#el').onclick=ev=>{const b=ev.target.closest('[data-e]');if(!b)return;e=+b.dataset.e;epl();cm();ld(qd)};epl()}
- $('#pb').onclick=()=>{vd.onerror=null;vd.pause();vd.removeAttribute('src');vd.load();P.classList.remove('on');if(document.fullscreenElement)document.exitFullscreen()};
- P.scrollTop=0;cm();fvd();ld(qd);requestAnimationFrame(()=>P.classList.add('on'))}
+ const cl=()=>{vd.onerror=null;vd.pause();vd.removeAttribute('src');vd.load();P.classList.remove('on');if(document.fullscreenElement)document.exitFullscreen()};$('#pb').onclick=back;
+ P.scrollTop=0;cm();fvd();ld(qd);requestAnimationFrame(()=>P.classList.add('on'));pushOv(cl)}
+function openGrid(h,l){const g=$('#gvo');g.innerHTML=`<div class="gvi">${gv(h,l,1)}</div>`;g.scrollTop=0;requestAnimationFrame(()=>g.classList.add('on'));pushOv(()=>g.classList.remove('on'))}
+$('#fi').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)crop(f)};
+function crop(file){const url=URL.createObjectURL(file),img=new Image(),C=$('#cr');
+ img.onerror=()=>{URL.revokeObjectURL(url);toast('Não foi possível abrir a imagem')};
+ img.onload=()=>{const SZ=Math.round(Math.min(innerWidth*.86,360)),R=SZ/2-8,dp=devicePixelRatio||1,w=img.naturalWidth,h=img.naturalHeight,sm=2*R/Math.min(w,h);let s=sm,cx=SZ/2,cy=SZ/2;
+  C.innerHTML=`<b style="font:500 18px Prompt">Ajustar foto</b><canvas id="cv"></canvas><input type="range" id="zr" min="1" max="5" step="0.01" value="1" aria-label="Zoom"><p>Arraste para mover. Use pinça ou a barra para o zoom.</p><div class="crb"><button id="cc">Cancelar</button><button id="cp">Salvar</button></div>`;
+  const cv=$('#cv'),x=cv.getContext('2d');cv.width=cv.height=SZ*dp;cv.style.width=cv.style.height=SZ+'px';x.setTransform(dp,0,0,dp,0,0);
+  const fit=()=>{s=Math.min(Math.max(s,sm),sm*5);const hw=w*s/2,hh=h*s/2;cx=Math.min(Math.max(cx,SZ/2+R-hw),SZ/2-R+hw);cy=Math.min(Math.max(cy,SZ/2+R-hh),SZ/2-R+hh);$('#zr').value=s/sm};
+  const dr=()=>{fit();x.clearRect(0,0,SZ,SZ);x.drawImage(img,cx-w*s/2,cy-h*s/2,w*s,h*s);x.beginPath();x.rect(0,0,SZ,SZ);x.arc(SZ/2,SZ/2,R,0,7,true);x.fillStyle='rgba(0,0,0,.65)';x.fill('evenodd');x.beginPath();x.arc(SZ/2,SZ/2,R,0,7);x.strokeStyle='#fff';x.lineWidth=2;x.stroke()};
+  const M=new Map();let d0=1,s0=1;
+  cv.onpointerdown=ev=>{cv.setPointerCapture(ev.pointerId);M.set(ev.pointerId,[ev.clientX,ev.clientY]);if(M.size==2){const[a,b]=[...M.values()];d0=Math.hypot(a[0]-b[0],a[1]-b[1])||1;s0=s}};
+  cv.onpointermove=ev=>{const o=M.get(ev.pointerId);if(!o)return;M.set(ev.pointerId,[ev.clientX,ev.clientY]);if(M.size==1){cx+=ev.clientX-o[0];cy+=ev.clientY-o[1]}else if(M.size==2){const[a,b]=[...M.values()];s=s0*Math.hypot(a[0]-b[0],a[1]-b[1])/d0}dr()};
+  cv.onpointerup=cv.onpointercancel=ev=>M.delete(ev.pointerId);
+  $('#zr').oninput=ev=>{s=sm*ev.target.value;dr()};$('#cc').onclick=back;
+  $('#cp').onclick=()=>{const o=document.createElement('canvas');o.width=o.height=320;const k=320/(2*R),ox=SZ/2-R;o.getContext('2d').drawImage(img,(cx-w*s/2-ox)*k,(cy-h*s/2-ox)*k,w*s*k,h*s*k);S.s('avc',o.toDataURL('image/jpeg',.88));setAv(7);back();if(st.tab=='p')draw();toast('Foto salva')};
+  dr();requestAnimationFrame(()=>C.classList.add('on'));pushOv(()=>{C.classList.remove('on');URL.revokeObjectURL(url)})};
+ img.src=url}
 // Início
 $$('.mav').forEach(i=>i.src=AV0);$('.mb').style.backgroundImage=`url(${BN})`;
-setAv(st.av);go('t');
+setAv(st.av);go('t');pushOv(()=>{const m=$('#tg');if(m){m.classList.add('out');setTimeout(()=>m.remove(),300)}});
 </script></body></html>
