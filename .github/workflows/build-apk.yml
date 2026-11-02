@@ -31,6 +31,24 @@ jobs:
           npm install
           npx cap add android
           npx cap sync android
+      - name: Aplicar icone do app
+        run: |
+          if [ ! -f icon.png ] || [ ! -f icon-foreground.png ] || [ ! -f icon-background.png ]; then echo "Sem os 3 arquivos de icone, mantendo o padrao"; exit 0; fi
+          IM=$(command -v magick || command -v convert || true)
+          if [ -z "$IM" ]; then sudo apt-get update -y && sudo apt-get install -y imagemagick; IM=$(command -v convert); fi
+          RES=build/android/app/src/main/res
+          mkdir -p $RES/mipmap-anydpi-v26
+          for d in "mdpi 48 108" "hdpi 72 162" "xhdpi 96 216" "xxhdpi 144 324" "xxxhdpi 192 432"; do
+            set -- $d
+            mkdir -p $RES/mipmap-$1
+            $IM icon.png -resize $2x$2 $RES/mipmap-$1/ic_launcher.png
+            cp $RES/mipmap-$1/ic_launcher.png $RES/mipmap-$1/ic_launcher_round.png
+            $IM icon-foreground.png -resize $3x$3 $RES/mipmap-$1/cg_fg.png
+            $IM icon-background.png -resize $3x$3 $RES/mipmap-$1/cg_bg.png
+          done
+          X='<?xml version="1.0" encoding="utf-8"?><adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@mipmap/cg_bg"/><foreground android:drawable="@mipmap/cg_fg"/></adaptive-icon>'
+          echo "$X" > $RES/mipmap-anydpi-v26/ic_launcher.xml
+          echo "$X" > $RES/mipmap-anydpi-v26/ic_launcher_round.xml
       - name: Compilar APK
         working-directory: build/android
         run: |
