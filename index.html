@@ -8,7 +8,7 @@ html{font-size:calc(min(100vw,520px)/108);background:#000;-webkit-text-size-adju
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 body{font:400 3.6rem Prompt,system-ui,sans-serif;color:#fff;background:#000;min-height:100vh;overflow-x:hidden}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;transition:transform .25s var(--e),color .3s,border-color .3s}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;transition:transform .25s var(--e),color .3s,border-color .3s}
 button:active{transform:scale(.92)}
 svg{display:block}
 @keyframes fade{from{opacity:0}}
@@ -21,7 +21,7 @@ svg{display:block}
 .hd h1{font:600 5.8rem Prompt;margin:0 2.4rem 0 2.8rem}
 .pl{height:9.8rem;padding:0 2rem;border:.3rem solid #ff1a1a;border-radius:2.2rem;color:#ff1a1a;font:500 5.8rem/1 Prompt;display:grid;place-items:center}
 .pls{margin-left:auto;width:7.4rem;height:7.4rem;flex:none;border:.25rem solid var(--g);border-radius:1.4rem;display:grid;place-items:center;color:#c8c8c8}
-.pls svg{width:5.4rem;height:5.4rem}
+.pls svg{width:5rem;height:5rem;margin:auto}
 .pf{margin-left:5.5rem;width:18.9rem;height:11.1rem;flex:none;border:.3rem solid #fff;border-radius:5.6rem;display:grid;place-items:center;overflow:hidden}
 .pf img{width:11rem;height:9.6rem;object-fit:cover}
 .sr{display:flex;align-items:center;gap:2.2rem;margin:4rem 6.2rem 0;height:10.5rem;padding:0 4.6rem;border:.3rem solid #3a3a3a;border-radius:5.3rem;background:#141414;color:#d0d0d0;transition:border-color .3s}
@@ -135,7 +135,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--r);outline-offs
 </style></head><body>
 <div id="app">
 <header class="hd"><img class="av hav" alt=""><h1>CGzone</h1><span class="pl">Play</span>
-<button class="pls" id="hp" aria-label="Favoritos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M12 5v14M5 12h14"/></svg></button>
+<button class="pls" id="hp" aria-label="Favoritos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M12 4.5v15M4.5 12h15" stroke-linecap="round"/></svg></button>
 <button class="pf" id="hq" aria-label="Perfil"><img class="av" alt=""></button></header>
 <label class="sr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></svg><input id="q" placeholder="Pesquisar Filme, Série ou Anime…" autocomplete="off" enterkeyhint="search"></label>
 <main id="v"></main></div>
@@ -173,6 +173,7 @@ const AG=[['#4a0010','<path fill="#eee" d="M50 18c-17 0-27 11-27 26 0 9 4 15 10 
 ['#3a0000','<path fill="#a00" d="M50 22c-18 0-28 12-28 28 0 14 10 26 28 26s28-12 28-26c0-16-10-28-28-28z"/><path fill="#eee" d="M26 22l8 16-13-3zM74 22l-8 16 13-3z"/><path fill="#ffd400" d="M33 46l13 4-11 6zM67 46l-13 4 11 6z"/><path d="M34 66l7 5 9-5 9 5 7-5" fill="none" stroke="#eee" stroke-width="3"/>']];
 const avSrc=i=>i?'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx=".5" cy=".3" r=".9"><stop offset="0" stop-color="${AG[i-1][0]}"/><stop offset="1" stop-color="#000"/></radialGradient></defs><rect width="100" height="100" fill="url(#g)"/>${AG[i-1][1]}</svg>`):AV0;
 const setAv=i=>{st.av=i;S.s('av',i);$$('.av').forEach(e=>e.src=avSrc(i))};
+const ext=u=>{try{window.Capacitor?location.href=u:window.open(u,'_blank')}catch{location.href=u}};
 const toast=m=>{const d=document.createElement('div');d.className='tst';d.textContent=m;document.body.append(d);setTimeout(()=>d.remove(),2400)};
 const esc=s=>s.replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 // Telas
@@ -206,8 +207,8 @@ let x0=0;$('#v').addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passi
 $('#v').addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-x0;if(e.target.closest('.hero')&&Math.abs(d)>40){sl(d<0?st.hi+1:st.hi+HS().length-1);hv()}});
 // Aviso do Telegram
 $('#tg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
- if(b.dataset.s){SOC[b.dataset.s]&&window.open(SOC[b.dataset.s],'_blank');return}
- if(b.id=='tgo')window.open(TG,'_blank');
+ if(b.dataset.s){SOC[b.dataset.s]&&ext(SOC[b.dataset.s]);return}
+ if(b.id=='tgo')ext(TG);
  if(b.id=='tgo'||b.id=='ign'){$('#tg').classList.add('out');setTimeout(()=>$('#tg').remove(),300)}});
 // Player
 function open(id){const x=cur=DB.find(i=>i.id==id);if(!x)return;const P=$('#pl'),ser=x.t!='f';
