@@ -1,0 +1,42 @@
+name: Build CGzone Play APK
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Preparar projeto
+        run: |
+          mkdir -p build/site
+          if [ -f index.html ]; then cp index.html build/site/index.html
+          elif [ -f www/index.html ]; then cp www/index.html build/site/index.html
+          elif [ -f www ]; then cp www build/site/index.html
+          else echo "index.html nao encontrado"; exit 1; fi
+          [ -f catalog.json ] && cp catalog.json build/site/ || true
+          printf '%s' '{"name":"cgzone-play","version":"1.0.0","private":true,"dependencies":{"@capacitor/android":"^6.2.0","@capacitor/core":"^6.2.0"},"devDependencies":{"@capacitor/cli":"^6.2.0"}}' > build/package.json
+          printf '%s' '{"appId":"com.cgzone.play","appName":"CGzone Play","webDir":"site","backgroundColor":"#000000","server":{"androidScheme":"https"}}' > build/capacitor.config.json
+      - name: Instalar e sincronizar
+        working-directory: build
+        run: |
+          npm install
+          npx cap add android
+          npx cap sync android
+      - name: Compilar APK
+        working-directory: build/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CGzone-Play-APK
+          path: build/android/app/build/outputs/apk/debug/app-debug.apk
