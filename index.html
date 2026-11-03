@@ -283,10 +283,12 @@ const VOLX='M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6';
 // IMM = player aberto em tela cheia. OR() e serializada para enter/exit nunca se atropelarem.
 let IMM=0,ORq=Promise.resolve();
 const OR=a=>{IMM=a?1:0;ORq=ORq.then(async()=>{
- if(window.Capacitor?.isNativePlatform?.()){try{const p=NP();if(p)await(a?p.enter():p.exit())}catch(e){dbg('CGPlayer.'+(a?'enter':'exit'),e)}}
+ if(window.Capacitor?.isNativePlatform?.()){try{const p=NP();if(p)await(a?p.enter():p.exit())}catch(e){dbg('CGPlayer.'+(a?'enter':'exit'),e)}if(a)setTimeout(chkIMM,2500)}
  else{try{const d=document;if(a){await d.documentElement.requestFullscreen?.({navigationUI:'hide'});await screen.orientation?.lock?.('landscape')}else{screen.orientation?.unlock?.();if(d.fullscreenElement)await d.exitFullscreen()}}catch{}}
 }).catch(()=>{})};
 // Reafirma o imersivo ao voltar do background/foco (so se o player ainda estiver aberto).
+// Autoteste: se o APK for antigo (sem diag) ou as barras continuarem visiveis, avisa na tela.
+const chkIMM=async()=>{if(!IMM)return;const p=NP();if(!p)return;try{const d=await p.diag();if(IMM&&(d.statusVisible||d.navVisible))toast('Barras do sistema ainda visíveis (Android API '+d.sdk+', nativo '+d.ver+')')}catch(e){dbg('CGPlayer.diag (APK desatualizado)',e)}};
 const reIMM=()=>{if(IMM&&!document.hidden){const p=NP();if(p)p.enter().catch(()=>{})}};
 document.addEventListener('visibilitychange',reIMM);addEventListener('focus',reIMM);addEventListener('pageshow',reIMM);
 // Garantia no boot: nunca iniciar com barras ocultas ou paisagem presa.
