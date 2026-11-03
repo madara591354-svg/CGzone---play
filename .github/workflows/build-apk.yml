@@ -3,9 +3,22 @@ on:
   push:
     branches: [main, master]
   workflow_dispatch:
+
+# Cancela builds antigos da mesma branch quando um novo commit chega.
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  APP_VERSION: "1.9.1-beta"
+
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -15,22 +28,54 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      # Cache do Gradle: o 2o build em diante fica bem mais rapido.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
       - name: Preparar projeto
         run: |
           mkdir -p build/site
           if [ -f index.html ]; then cp index.html build/site/index.html
           elif [ -f www/index.html ]; then cp www/index.html build/site/index.html
           elif [ -f www ]; then cp www build/site/index.html
-          else echo "index.html nao encontrado"; exit 1; fi
+          else echo "::error::index.html nao encontrado"; exit 1; fi
           [ -f catalog.json ] && cp catalog.json build/site/ || true
-          printf '%s' '{"name":"cgzone-play","version":"1.0.0","private":true,"dependencies":{"@capacitor/android":"^6.2.0","@capacitor/core":"^6.2.0"},"devDependencies":{"@capacitor/cli":"^6.2.0"}}' > build/package.json
+          printf '%s' '{"name":"cgzone-play","version":"1.0.0","private":true,"dependencies":{"@capacitor/android":"^6.2.0","@capacitor/core":"^6.2.0","@capacitor/status-bar":"^6.0.0"},"devDependencies":{"@capacitor/cli":"^6.2.0"}}' > build/package.json
           printf '%s' '{"appId":"com.cgzone.play","appName":"CGzone Play","webDir":"site","backgroundColor":"#000000","server":{"androidScheme":"https"}}' > build/capacitor.config.json
+
       - name: Instalar e sincronizar
         working-directory: build
         run: |
           npm install
           npx cap add android
           npx cap sync android
+
+      # Codigo nativo vive em android-native/ (nada de Java dentro do YAML).
+      - name: Instalar codigo nativo (player imersivo, brilho e volume)
+        run: |
+          D=build/android/app/src/main/java/com/cgzone/play
+          mkdir -p "$D"
+          for f in MainActivity CGPlayerPlugin ImmersiveController; do
+            if [ ! -f "android-native/$f.java" ]; then
+              echo "::error::android-native/$f.java nao encontrado. Envie a pasta android-native inteira para o GitHub."
+              exit 1
+            fi
+            cp "android-native/$f.java" "$D/$f.java"
+          done
+          ls -l "$D"
+
+      - name: Ajustar Manifest e versao do app
+        run: |
+          M=build/android/app/src/main/AndroidManifest.xml
+          # Girar a tela NAO pode recriar a Activity (senao o player reinicia e perde o imersivo).
+          for k in orientation screenSize; do
+            grep -q "configChanges=\"[^\"]*$k" "$M" || { echo "::error::Manifest sem configChanges=$k"; exit 1; }
+          done
+          G=build/android/app/build.gradle
+          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"$APP_VERSION\"/" "$G"
+          grep -E "versionCode|versionName" "$G"
+
       - name: Aplicar icone do app
         run: |
           if [ ! -f icon.png ] || [ ! -f icon-foreground.png ] || [ ! -f icon-background.png ]; then echo "Sem os 3 arquivos de icone, mantendo o padrao"; exit 0; fi
@@ -49,12 +94,27 @@ jobs:
           X='<?xml version="1.0" encoding="utf-8"?><adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@mipmap/cg_bg"/><foreground android:drawable="@mipmap/cg_fg"/></adaptive-icon>'
           echo "$X" > $RES/mipmap-anydpi-v26/ic_launcher.xml
           echo "$X" > $RES/mipmap-anydpi-v26/ic_launcher_round.xml
+
       - name: Compilar APK
         working-directory: build/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Verificar APK (codigo nativo incluido)
+        run: |
+          APK=build/android/app/build/outputs/apk/debug/app-debug.apk
+          [ -f "$APK" ] || { echo "::error::APK nao gerado"; exit 1; }
+          unzip -p "$APK" 'classes*.dex' > "$RUNNER_TEMP/dex.bin"
+          for c in CGPlayerPlugin ImmersiveController MainActivity; do
+            grep -aq "Lcom/cgzone/play/$c;" "$RUNNER_TEMP/dex.bin" || { echo "::error::$c ausente no APK"; exit 1; }
+          done
+          cp "$APK" "CGzone-Play-v${APP_VERSION}.apk"
+          ls -lh "CGzone-Play-v${APP_VERSION}.apk"
+
       - uses: actions/upload-artifact@v4
         with:
           name: CGzone-Play-APK
-          path: build/android/app/build/outputs/apk/debug/app-debug.apk
+          path: CGzone-Play-v${{ env.APP_VERSION }}.apk
+          retention-days: 30
+          if-no-files-found: error
