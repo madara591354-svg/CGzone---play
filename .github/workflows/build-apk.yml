@@ -57,11 +57,16 @@ jobs:
           D=build/android/app/src/main/java/com/cgzone/play
           mkdir -p "$D"
           for f in MainActivity CGPlayerPlugin ImmersiveController; do
-            if [ ! -f "android-native/$f.java" ]; then
-              echo "::error::android-native/$f.java nao encontrado. Envie a pasta android-native inteira para o GitHub."
+            SRC=""
+            for c in "android-native/$f.java" "$f.java"; do
+              if [ -f "$c" ]; then SRC="$c"; break; fi
+            done
+            if [ -z "$SRC" ]; then
+              echo "::error::$f.java nao encontrado. Envie os 3 arquivos .java (MainActivity, CGPlayerPlugin, ImmersiveController) para a raiz do repositorio."
               exit 1
             fi
-            cp "android-native/$f.java" "$D/$f.java"
+            echo "Usando $SRC"
+            cp "$SRC" "$D/$f.java"
           done
           ls -l "$D"
 
