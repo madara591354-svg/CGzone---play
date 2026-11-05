@@ -328,7 +328,7 @@ const EMS=(id,s,e)=>'https://myembed.biz/serie/'+id+'/'+s+'/'+e,TVOFF=1e9;
 const TVG={s:{'Séries Populares':'trending/tv/week?','Drama':'discover/tv?with_genres=18&without_genres=16','Crime':'discover/tv?with_genres=80&without_genres=16','Comédia':'discover/tv?with_genres=35&without_genres=16','Ação e Aventura':'discover/tv?with_genres=10759&without_genres=16','Ficção e Fantasia':'discover/tv?with_genres=10765&without_genres=16'},
  a:{'Animes Populares':'discover/tv?with_genres=16&with_original_language=ja','Shounen':'discover/tv?with_genres=16&with_original_language=ja&with_keywords=207826','Isekai':'discover/tv?with_genres=16&with_original_language=ja&with_keywords=237451','Seinen':'discover/tv?with_genres=16&with_original_language=ja&with_keywords=195668','Romance':'discover/tv?with_genres=16&with_original_language=ja&with_keywords=9840'}};
 const isA=m=>(m.genre_ids||[]).includes(16)&&(m.original_language=='ja'||(m.origin_country||[]).includes('JP'));
-const tv=(m,g,t,k)=>({id:-(TVOFF+m.id*100+k),tmdb:m.id,t,g,n:m.name,on:m.original_name,y:(m.first_air_date||'').slice(0,4)||'',r:(m.vote_average||0).toFixed(1),sy:m.overview||'',p:m.poster_path?TI+'w500'+m.poster_path:void 0,b:m.backdrop_path?TI+'w1280'+m.backdrop_path:void 0,u:{HD:EMS(m.id,1,1)}});
+const tv=(m,g,t,k)=>({id:-(TVOFF+m.id*100+k),tmdb:m.id,t,g,n:m.name,on:m.original_name,y:(m.first_air_date||'').slice(0,4)||'',r:(m.vote_average||0).toFixed(1),sy:m.overview||'',p:m.poster_path?TI+'w500'+m.poster_path:void 0,b:m.backdrop_path?TI+'w1280'+m.backdrop_path:void 0,em:EMS(m.id,1,1),u:{HD:EMS(m.id,1,1)}});
 async function tvLoad(){if(!TMDB_KEY)return;for(const t of ['s','a'])try{const G=TVG[t],gl=Object.keys(G);
  for(const g of gl){const ps=await Promise.all([1,2,3].map(n=>tm(G[g],n).catch(()=>({}))));const have=new Set();
   const L=ps.flatMap(d=>d.results||[]).filter(m=>m.poster_path&&(t=='a'||!isA(m))&&!have.has(m.id)&&have.add(m.id)).map(m=>tv(m,g,t,gl.indexOf(g)+1));
@@ -337,7 +337,7 @@ async function tvLoad(){if(!TMDB_KEY)return;for(const t of ['s','a'])try{const G
 // Temporadas e episódios reais (nomes em pt-BR), carregados ao abrir a série/anime
 async function tvSeasons(x){const d=await tm('tv/'+x.tmdb);const ss=(d.seasons||[]).filter(z=>z.season_number>0&&z.episode_count>0);if(!ss.length)throw 0;
  const nm={};for(let i=0;i<ss.length;i+=20){const r=await tm('tv/'+x.tmdb+'?append_to_response='+ss.slice(i,i+20).map(z=>'season/'+z.season_number).join(',')).catch(()=>({}));ss.slice(i,i+20).forEach(z=>{nm[z.season_number]=((r['season/'+z.season_number]||{}).episodes)||[]})}
- x.seasons=ss.map(z=>Array.from({length:z.episode_count},(_,i)=>{const ep=nm[z.season_number][i];return{n:ep&&ep.name&&!/^Episódio \d+$/.test(ep.name)?ep.name:'Episódio '+(i+1),u:{HD:EMS(x.tmdb,z.season_number,i+1)}}}));
+ x.seasons=ss.map(z=>Array.from({length:z.episode_count},(_,i)=>{const ep=nm[z.season_number][i];return{n:ep&&ep.name&&!/^Episódio \d+$/.test(ep.name)?ep.name:'Episódio '+(i+1),em:EMS(x.tmdb,z.season_number,i+1),u:{HD:EMS(x.tmdb,z.season_number,i+1)}}}));
  if(!x.b&&d.backdrop_path)x.b=TI+'w1280'+d.backdrop_path;if(!x.ri)x.ri=x.r}
 setTimeout(()=>tmLoad().then(tvLoad),0);
 const I=(d,f)=>`<svg viewBox="0 0 24 24" ${f?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'}><path d="${d}"/></svg>`;
