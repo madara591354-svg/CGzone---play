@@ -46,7 +46,7 @@ svg{display:block}
 .sh button{color:var(--r);font:500 3.8rem Prompt}
 .row{display:flex;gap:4.8rem;overflow-x:auto;padding:1.4rem 3.7rem;scroll-padding-left:3.7rem;scroll-snap-type:x proximity;scrollbar-width:none}
 .row::-webkit-scrollbar{display:none}
-.cd{flex:0 0 40.5rem;height:55.7rem;border:.3rem solid var(--g);border-radius:5rem;background:#000 center/cover;display:grid;place-items:center;scroll-snap-align:start;animation:up .6s var(--e) both;animation-delay:calc(var(--i)*70ms)}
+.cd{flex:0 0 40.5rem;height:55.7rem;border:.3rem solid var(--g);border-radius:5rem;background:#000 center/cover;display:grid;place-items:center;scroll-snap-align:start;animation:up .6s var(--e) both;animation-delay:calc(min(var(--i),10)*70ms)}
 .cd svg{width:13.2rem;height:13.2rem;transition:transform .3s var(--e)}
 .cd:active svg{transform:scale(1.25)}
 nav{position:fixed;z-index:5;bottom:0;left:50%;transform:translateX(-50%);width:min(100vw,520px);display:grid;grid-template-columns:repeat(5,1fr);background:#000;border-top:.2rem solid #3a3a3a;padding:1.2rem 0 env(safe-area-inset-bottom,0px)}
@@ -59,6 +59,7 @@ nav .on svg{animation:pop .5s var(--e)}
 .gh h2{font:500 4.6rem Prompt}
 .bk{width:8rem;height:8rem;display:grid;place-items:center}
 .bk svg{width:5rem;height:5rem}
+.gv .gh{position:sticky;top:0;left:auto;transform:none;z-index:3;opacity:1;pointer-events:auto;padding:2rem 0;margin:0 0 1rem;border-radius:0;background:#000;font-weight:inherit;gap:2rem}.gv .gh svg{width:5rem;height:5rem}.lmo{display:block;margin:6rem auto 0;padding:2.4rem 7rem;border:.3rem solid var(--r);border-radius:5rem;color:var(--r);font:500 3.8rem Prompt}
 .gr{display:grid;grid-template-columns:1fr 1fr;gap:4rem}
 .gr .cd{width:100%;height:auto;aspect-ratio:405/557}
 .gr p{font-size:3.2rem;margin-top:1.4rem;color:#ddd}
@@ -321,8 +322,24 @@ async function tmLoad(){if(!TMDB_KEY)return;try{
   if(g=='Top Lançamentos'){const i=DB.findIndex(x=>x.t=='f'&&x.g==g);L.forEach(x=>{x.id=-(x.tmdb*10+1)});DB.splice(i<0?0:i,0,...L)}
   else{L.forEach(x=>{x.id=-(x.tmdb*10+2+Object.keys(TGN).indexOf(g))});DB.push(...L)}}
  if(!$('#q').value.trim())draw()}catch{}}
-let tq,tqL='';const tmSearch=q=>{if(q==tqL)return;tqL=q;clearTimeout(tq);if(!TMDB_KEY||q.length<2)return;tq=setTimeout(()=>tm('search/movie?query='+encodeURIComponent(q)+'&include_adult=false').then(d=>{if($('#q').value.trim().toLowerCase()!=q)return;XT=(d.results||[]).filter(m=>m.poster_path).map(m=>({...mv(m,'Busca'),id:-(m.id*10+9)}));draw()}).catch(()=>{}),450)};
-setTimeout(tmLoad,0);
+let tq,tqL='';const tmSearch=q=>{if(q==tqL)return;tqL=q;clearTimeout(tq);if(!TMDB_KEY||q.length<2)return;tq=setTimeout(()=>tm('search/movie?query='+encodeURIComponent(q)+'&include_adult=false').then(d=>{if($('#q').value.trim().toLowerCase()!=q)return;XT=(d.results||[]).filter(m=>m.poster_path).map(m=>({...mv(m,'Busca'),id:-(m.id*10+9)}));draw();tm('search/tv?query='+encodeURIComponent(q)+'&include_adult=false').then(v=>{if($('#q').value.trim().toLowerCase()!=q)return;XT=XT.concat((v.results||[]).filter(m=>m.poster_path).map(m=>tv(m,'Busca',isA(m)?'a':'s',99)));draw()}).catch(()=>{})}).catch(()=>{}),450)};
+// V1.16: SÉRIES e ANIMES automáticos (TMDB) tocando via Embed Movies: https://myembed.biz/serie/{TMDB}/{temporada}/{episódio}
+const EMS=(id,s,e)=>'https://myembed.biz/serie/'+id+'/'+s+'/'+e,TVOFF=1e9;
+const TVG={s:{'Séries Populares':'trending/tv/week?','Drama':'discover/tv?with_genres=18&without_genres=16','Crime':'discover/tv?with_genres=80&without_genres=16','Comédia':'discover/tv?with_genres=35&without_genres=16','Ação e Aventura':'discover/tv?with_genres=10759&without_genres=16','Ficção e Fantasia':'discover/tv?with_genres=10765&without_genres=16'},
+ a:{'Animes Populares':'discover/tv?with_genres=16&with_original_language=ja','Shounen':'discover/tv?with_genres=16&with_original_language=ja&with_keywords=207826','Isekai':'discover/tv?with_genres=16&with_original_language=ja&with_keywords=237451','Seinen':'discover/tv?with_genres=16&with_original_language=ja&with_keywords=195668','Romance':'discover/tv?with_genres=16&with_original_language=ja&with_keywords=9840'}};
+const isA=m=>(m.genre_ids||[]).includes(16)&&(m.original_language=='ja'||(m.origin_country||[]).includes('JP'));
+const tv=(m,g,t,k)=>({id:-(TVOFF+m.id*100+k),tmdb:m.id,t,g,n:m.name,on:m.original_name,y:(m.first_air_date||'').slice(0,4)||'',r:(m.vote_average||0).toFixed(1),sy:m.overview||'',p:m.poster_path?TI+'w500'+m.poster_path:void 0,b:m.backdrop_path?TI+'w1280'+m.backdrop_path:void 0,u:{HD:EMS(m.id,1,1)}});
+async function tvLoad(){if(!TMDB_KEY)return;for(const t of ['s','a'])try{const G=TVG[t],gl=Object.keys(G);
+ for(const g of gl){const ps=await Promise.all([1,2,3].map(n=>tm(G[g],n).catch(()=>({}))));const have=new Set();
+  const L=ps.flatMap(d=>d.results||[]).filter(m=>m.poster_path&&(t=='a'||!isA(m))&&!have.has(m.id)&&have.add(m.id)).map(m=>tv(m,g,t,gl.indexOf(g)+1));
+  if(!L.length)continue;DB=DB.filter(x=>!(x.t==t&&x.g==g&&!x.tmdb));const i=DB.findIndex(x=>x.t==t&&x.g==g);DB.splice(i<0?DB.length:i,0,...L)}
+ if(!$('#q').value.trim()&&!$('#pl.on'))draw()}catch{}}
+// Temporadas e episódios reais (nomes em pt-BR), carregados ao abrir a série/anime
+async function tvSeasons(x){const d=await tm('tv/'+x.tmdb);const ss=(d.seasons||[]).filter(z=>z.season_number>0&&z.episode_count>0);if(!ss.length)throw 0;
+ const nm={};for(let i=0;i<ss.length;i+=20){const r=await tm('tv/'+x.tmdb+'?append_to_response='+ss.slice(i,i+20).map(z=>'season/'+z.season_number).join(',')).catch(()=>({}));ss.slice(i,i+20).forEach(z=>{nm[z.season_number]=((r['season/'+z.season_number]||{}).episodes)||[]})}
+ x.seasons=ss.map(z=>Array.from({length:z.episode_count},(_,i)=>{const ep=nm[z.season_number][i];return{n:ep&&ep.name&&!/^Episódio \d+$/.test(ep.name)?ep.name:'Episódio '+(i+1),u:{HD:EMS(x.tmdb,z.season_number,i+1)}}}));
+ if(!x.b&&d.backdrop_path)x.b=TI+'w1280'+d.backdrop_path;if(!x.ri)x.ri=x.r}
+setTimeout(()=>tmLoad().then(tvLoad),0);
 const I=(d,f)=>`<svg viewBox="0 0 24 24" ${f?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'}><path d="${d}"/></svg>`;
 const PLAYC='<svg viewBox="0 0 132 132" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"><circle cx="66" cy="66" r="63"/><path d="M52 40l42 26-42 26z"/></svg>';
 const SUN='M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10M12 1v2M12 21v2M1 12h2M21 12h2M4.2 4.2l1.4 1.4M17.4 17.4l1.4 1.4M4.2 19.8l1.4-1.4M17.4 6.6l1.4-1.4',FSP='M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',CST='M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6M2 12a9 9 0 0 1 8 8M2 16a5 5 0 0 1 4 4M2 20h.01';
@@ -353,7 +370,7 @@ const sl=i=>{const L=$$('.sl'),D=$$('.dots i');if(!L.length)return;st.hi=i%L.len
 function hv(){clearInterval(st.iv);if(st.tab=='t'&&$('.hero'))st.iv=setInterval(()=>sl(st.hi+1),5000)}
 const prof=()=>{const f=DB.filter(x=>st.fav.includes(x.id));return `<div class="pv"><img class="av pa" src="${avSrc(st.av)}" alt=""><h2>Visitante</h2><p>Escolha seu avatar</p><div class="ag">${[0,1,2,3,4,5,6,...(S.g('avc',0)?[7]:[])].map(i=>`<button class="ab${i==st.av?' on':''}" data-a="${i}" aria-label="Avatar ${i+1}"><img src="${avSrc(i)}" alt=""></button>`).join('')}<button class="ab add" id="addp" aria-label="Adicionar foto da galeria">${I('M4 8h3l2-3h6l2 3h3v11H4zM12 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7')}</button></div></div>${f.length?sec('Meus Favoritos',f):'<p class="em">Toque no + ao assistir para adicionar aos favoritos.</p>'}`};
 function draw(){if(!navigator.onLine){$('#v').innerHTML=`<div class="off"><img src="${KON}" alt=""><span>Sem conexão</span></div>`;return}const q=$('#q').value.trim().toLowerCase(),t=st.tab;let h='';
- if(q){const L=DB.filter(x=>x.n.toLowerCase().includes(q)),k=new Set(L.map(x=>x.tmdb||x.id));h=gv('Resultados',L.concat(XT.filter(x=>!k.has(x.tmdb)&&k.add(x.tmdb))));tmSearch(q)}
+ if(q){const L=DB.filter(x=>x.n.toLowerCase().includes(q)),kk=x=>(x.t=='f'?'f':'s')+(x.tmdb||x.id),k=new Set(L.map(kk));h=gv('Resultados',L.concat(XT.filter(x=>!k.has(kk(x))&&k.add(kk(x)))));tmSearch(q)}
  else if(t=='p')h=prof();
  else if(t=='t')h=hero()+['f','s','a'].map(k=>{const g=gens(k)[0];return sec(k=='f'?'Top Lançamentos<br>Filmes':g,by(k,g),k+'|'+g)}).join('');
  else h=gens(t).map(g=>sec(g,by(t,g),t+'|'+g)).join('');
@@ -409,6 +426,7 @@ const FW=RW.replace('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1
 const HD='<svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="#fff" stroke-width="2"/><text x="12" y="15.4" font-size="8" font-weight="700" text-anchor="middle" fill="#fff">HD</text></svg>';
 const tf=t=>isFinite(t)?`${t/60|0}:${String(t%60|0).padStart(2,'0')}`:'0:00';
 function open(id){const x=cur=DB.find(i=>i.id==id)||XT.find(i=>i.id==id);if(!x)return;
+ if(x.t!='f'&&x.tmdb&&!x.seasons){if(x._ld)return;x._ld=1;toast('Carregando episódios...');return tvSeasons(x).then(()=>{x._ld=0;open(id)}).catch(()=>{x._ld=0;toast('Não foi possível carregar os episódios.')})}
  const P=$('#pl'),V=$('#pv'),ser=x.t!='f',sy=x.sy||'',cut=sy.length>100,r1=x.r||'8.0',r2=x.ri||'8.0',SPD=[.5,.75,1,1.25,1.5,2];
  const SE=x.seasons||[1,2,3].map(()=>Array.from({length:6},(_,i)=>({n:'Episódio '+(i+1)})));
  let s=0,e=0,ex=0,po=0,si=2,fl=0,bv=.5,vv=1,AUD=x.aud||{Dublado:x.u,Legendado:x.u},au=Object.keys(AUD)[0],rate=S.g('rt:'+x.id,0);
@@ -487,7 +505,9 @@ function open(id){const x=cur=DB.find(i=>i.id==id)||XT.find(i=>i.id==id);if(!x)r
  $('#ci').onkeydown=ev=>ev.key=='Enter'&&$('#cs').click();
  syr();snl();epl();cm();fvd();if(!ser)strs();
  P.scrollTop=0;requestAnimationFrame(()=>P.classList.add('on'));pushOv(()=>P.classList.remove('on'))}
-function openGrid(h,l){const g=$('#gvo');g.innerHTML=`<div class="gvi">${gv(h,l,1)}</div>`;g.scrollTop=0;requestAnimationFrame(()=>g.classList.add('on'));pushOv(()=>g.classList.remove('on'))}
+const GRIDMAX=30;// V1.16: limite na tela Ver Mais; o resto vem no botão "Carregar mais"
+function openGrid(h,l){const g=$('#gvo');let k=GRIDMAX;g.innerHTML=`<div class="gvi">${gv(h,l.slice(0,k),1)}${l.length>k?'<button class="lmo" id="lmo">Carregar mais</button>':''}</div>`;
+ const lm=()=>{const b=$('#lmo');if(b)b.onclick=()=>{const L=l.slice(k,k+GRIDMAX);k+=GRIDMAX;g.querySelector('.gr').insertAdjacentHTML('beforeend',L.map((x,i)=>`<div>${card(x,i)}<p>${x.n}</p></div>`).join(''));if(k>=l.length)b.remove()}};lm();g.scrollTop=0;requestAnimationFrame(()=>g.classList.add('on'));pushOv(()=>g.classList.remove('on'))}
 $('#fi').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)crop(f)};
 function crop(file){const url=URL.createObjectURL(file),img=new Image(),C=$('#cr');
  img.onerror=()=>{URL.revokeObjectURL(url);toast('Não foi possível abrir a imagem')};
