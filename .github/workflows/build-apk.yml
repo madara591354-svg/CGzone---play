@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  APP_VERSION: "1.17.0-beta"
+  APP_VERSION: "1.18.0-beta"
 
 jobs:
   build:
