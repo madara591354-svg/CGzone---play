@@ -1,12 +1,19 @@
 package com.cgzone.play;
 
+import android.content.Context;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.webkit.WebView;
 import androidx.activity.OnBackPressedCallback;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+  private ConnectivityManager.NetworkCallback netCb;
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     registerPlugin(CGPlayerPlugin.class);
@@ -27,6 +34,46 @@ public class MainActivity extends BridgeActivity {
         );
       }
     });
+
+    // V1.18.0 (correcao): avisa o app quando o wi-fi/dados liga ou desliga,
+    // para mostrar (ou tirar) o mascote "Liga o wi-fi cara" na hora.
+    watchNetwork();
+  }
+
+  private void watchNetwork() {
+    try {
+      ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+      if (cm == null) return;
+      netCb = new ConnectivityManager.NetworkCallback() {
+        @Override public void onAvailable(Network n) { notifyNet(); }
+        @Override public void onLost(Network n) { notifyNet(); }
+      };
+      cm.registerNetworkCallback(
+        new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(),
+        netCb
+      );
+    } catch (Exception e) {
+      netCb = null;
+    }
+  }
+
+  private void notifyNet() {
+    runOnUiThread(() -> {
+      WebView wv = getBridge() != null ? getBridge().getWebView() : null;
+      if (wv != null) wv.evaluateJavascript("window.cgNet&&window.cgNet()", null);
+    });
+  }
+
+  @Override
+  public void onDestroy() {
+    try {
+      if (netCb != null) {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) cm.unregisterNetworkCallback(netCb);
+      }
+    } catch (Exception e) { }
+    netCb = null;
+    super.onDestroy();
   }
 
   /**

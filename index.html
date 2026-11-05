@@ -369,14 +369,23 @@ const hero=()=>{const h=HS();return `<div class="hero">${h.map((x,i)=>`<div clas
 const sl=i=>{const L=$$('.sl'),D=$$('.dots i');if(!L.length)return;st.hi=i%L.length;L.forEach((e,k)=>e.classList.toggle('on',k==st.hi));D.forEach((e,k)=>e.classList.toggle('on',k==st.hi))};
 function hv(){clearInterval(st.iv);if(st.tab=='t'&&$('.hero'))st.iv=setInterval(()=>sl(st.hi+1),5000)}
 const prof=()=>{const f=DB.filter(x=>st.fav.includes(x.id));return `<div class="pv"><img class="av pa" src="${avSrc(st.av)}" alt=""><h2>Visitante</h2><p>Escolha seu avatar</p><div class="ag">${[0,1,2,3,4,5,6,...(S.g('avc',0)?[7]:[])].map(i=>`<button class="ab${i==st.av?' on':''}" data-a="${i}" aria-label="Avatar ${i+1}"><img src="${avSrc(i)}" alt=""></button>`).join('')}<button class="ab add" id="addp" aria-label="Adicionar foto da galeria">${I('M4 8h3l2-3h6l2 3h3v11H4zM12 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7')}</button></div></div>${f.length?sec('Meus Favoritos',f):'<p class="em">Toque no + ao assistir para adicionar aos favoritos.</p>'}`};
-function draw(){if(!navigator.onLine){$('#v').innerHTML=`<div class="wf" role="status" aria-label="Sem conexão: Liga o wi-fi cara"><img src="${KOFF}" alt=""><p id="wft"></p></div>`;wfType();return}const q=$('#q').value.trim().toLowerCase(),t=st.tab;let h='';
+// V1.18.0 (correcao): teste REAL de internet. No Android o navigator.onLine pode dizer "online" mesmo sem conexao.
+let NET=1,netT,netQ;const OFF=()=>!navigator.onLine||!NET;
+const ping=u=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),6000);return fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{mode:'no-cors',cache:'no-store',signal:c.signal}).finally(()=>clearTimeout(t))};
+async function netChk(){clearTimeout(netT);if(netQ)return;netQ=1;let ok=0;
+ if(navigator.onLine)for(const u of['https://www.gstatic.com/generate_204',TA+'/configuration']){try{await ping(u);ok=1;break}catch{}}
+ netQ=0;const was=NET;NET=ok;
+ if(was!=ok){draw();if(ok){if(!DB.some(x=>x.t=='f'&&x.id<0))tmLoad().then(()=>{if(!DB.some(x=>x.t=='s'&&x.tmdb))return tvLoad()});else if(!DB.some(x=>x.t=='s'&&x.tmdb))tvLoad()}}
+ if(!ok)netT=setTimeout(netChk,4000)}
+window.cgNet=()=>{clearTimeout(netT);netT=setTimeout(netChk,1200)};
+function draw(){if(OFF()){$('#v').innerHTML=`<div class="wf" role="status" aria-label="Sem conexão: Liga o wi-fi cara"><img src="${KOFF}" alt=""><p id="wft"></p></div>`;wfType();return}const q=$('#q').value.trim().toLowerCase(),t=st.tab;let h='';
  if(q){const L=DB.filter(x=>x.n.toLowerCase().includes(q)),kk=x=>(x.t=='f'?'f':'s')+(x.tmdb||x.id),k=new Set(L.map(kk));h=gv('Resultados',L.concat(XT.filter(x=>!k.has(kk(x))&&k.add(kk(x)))));tmSearch(q)}
  else if(t=='p')h=prof();
  else if(t=='t')h=hero()+['f','s','a'].map(k=>{const g=gens(k)[0];return sec(k=='f'?'Top Lançamentos<br>Filmes':g,by(k,g),k+'|'+g)}).join('');
  else h=gens(t).map(g=>sec(g,by(t,g),t+'|'+g)).join('');
  $('#v').innerHTML=h;st.hi=0;hv()}
 function go(t,sl){if(!sl)tabHist(t);st.tab=t;$('#q').value='';$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$('.sr').hidden=t=='p';draw();scrollTo({top:0,behavior:'smooth'})}
-$('#q').oninput=draw;addEventListener('online',draw);addEventListener('offline',draw);$('#hp').onclick=$('#hq').onclick=()=>go('p');
+$('#q').oninput=draw;addEventListener('online',()=>{draw();cgNet()});addEventListener('offline',()=>{draw();cgNet()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)cgNet()});netChk();$('#hp').onclick=$('#hq').onclick=()=>go('p');
 document.addEventListener('click',e=>{const t=e.target.closest('[data-id],[data-m],[data-t],[data-a],[data-h],.as,#bk,#addp');if(!t)return;
  if(t.id=='addp')return $('#fi').click();
  if(t.matches('.as')){const h=HS()[st.hi];return h&&open(h.id)}
