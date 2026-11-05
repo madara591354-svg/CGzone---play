@@ -321,7 +321,7 @@ async function tmLoad(){if(!TMDB_KEY)return;try{
   if(g=='Top Lançamentos'){const i=DB.findIndex(x=>x.t=='f'&&x.g==g);L.forEach(x=>{x.id=-(x.tmdb*10+1)});DB.splice(i<0?0:i,0,...L)}
   else{L.forEach(x=>{x.id=-(x.tmdb*10+2+Object.keys(TGN).indexOf(g))});DB.push(...L)}}
  if(!$('#q').value.trim())draw()}catch{}}
-let tq;const tmSearch=q=>{clearTimeout(tq);if(!TMDB_KEY||q.length<2)return;tq=setTimeout(()=>tm('search/movie?query='+encodeURIComponent(q)+'&include_adult=false').then(d=>{if($('#q').value.trim().toLowerCase()!=q)return;XT=(d.results||[]).filter(m=>m.poster_path).map(m=>({...mv(m,'Busca'),id:-(m.id*10+9)}));draw()}).catch(()=>{}),450)};
+let tq,tqL='';const tmSearch=q=>{if(q==tqL)return;tqL=q;clearTimeout(tq);if(!TMDB_KEY||q.length<2)return;tq=setTimeout(()=>tm('search/movie?query='+encodeURIComponent(q)+'&include_adult=false').then(d=>{if($('#q').value.trim().toLowerCase()!=q)return;XT=(d.results||[]).filter(m=>m.poster_path).map(m=>({...mv(m,'Busca'),id:-(m.id*10+9)}));draw()}).catch(()=>{}),450)};
 setTimeout(tmLoad,0);
 const I=(d,f)=>`<svg viewBox="0 0 24 24" ${f?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'}><path d="${d}"/></svg>`;
 const PLAYC='<svg viewBox="0 0 132 132" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"><circle cx="66" cy="66" r="63"/><path d="M52 40l42 26-42 26z"/></svg>';
@@ -343,7 +343,8 @@ const esc=s=>s.replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 // Telas
 const gens=t=>[...new Set(DB.filter(x=>x.t==t).map(x=>x.g))],by=(t,g)=>DB.filter(x=>x.t==t&&x.g==g);
 const card=(x,i)=>`<button class="cd" data-id="${x.id}" aria-label="${x.n}" style="--i:${i};${x.p?`background-image:url('${x.p}')`:''}">${PLAYC}</button>`;
-const sec=(h,l,m)=>l.length?`<section class="sec"><div class="sh"><h2>${h}</h2>${m?`<button data-m="${m}">Ver Mais</button>`:''}</div><div class="row">${l.map(card).join('')}</div></section>`:'';
+const ROWMAX=20;// V1.15: limite por fileira; o resto aparece em "Ver Mais"
+const sec=(h,l,m)=>l.length?`<section class="sec"><div class="sh"><h2>${h}</h2>${m?`<button data-m="${m}">Ver Mais</button>`:''}</div><div class="row">${(m?l.slice(0,ROWMAX):l).map(card).join('')}</div></section>`:'';
 const gv=(h,l,b)=>`<div class="gv"><div class="gh">${b?`<button class="bk" id="bk" aria-label="Voltar">${I('M15 5l-7 7 7 7')}</button>`:''}<h2>${h}</h2></div><div class="gr">${l.map((x,i)=>`<div>${card(x,i)}<p>${x.n}</p></div>`).join('')||'<p>Nada encontrado.</p>'}</div></div>`;
 const HB=['radial-gradient(circle at 50% 28%,#e0a93c,transparent 16%),radial-gradient(circle at 50% 55%,#5b3fd1,#1a1052 48%,#05010f)','radial-gradient(circle at 30% 30%,#ff3b3b,#4a0010 52%,#050005)','radial-gradient(circle at 70% 30%,#19c3b1,#0b3b4a 52%,#02080c)','radial-gradient(circle at 50% 40%,#ff9d2e,#5a1d00 55%,#060200)'];
 const HS=()=>{const h=DB.filter(x=>x.b);return(h.length?h:['f','s','a','f'].map((t,i)=>by(t,gens(t)[0])[i>2?1:0])).filter(Boolean).slice(0,4)};
