@@ -34,7 +34,7 @@ svg{display:block}
 .sl.on{opacity:1;transform:none}
 .sl::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,.65))}
 .ht{position:absolute;z-index:1;left:0;right:0;bottom:27rem;padding:0 5rem;text-align:center;font:600 7.6rem/1.05 Prompt;text-shadow:0 .4rem 3rem #000}
-.as{position:absolute;z-index:2;left:50%;bottom:10.2rem;margin-left:-24.8rem;width:49.6rem;height:13.7rem;border:.3rem solid rgba(255,255,255,.55);border-radius:7rem;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);font:500 5.2rem Prompt}
+.as{position:absolute;z-index:2;left:50%;bottom:10.2rem;margin-left:-24.8rem;width:49.6rem;height:13.7rem;border:.3rem solid rgba(255,255,255,.55);border-radius:7rem;background:rgba(0,0,0,.45);font:500 5.2rem Prompt}
 .dots{position:absolute;z-index:2;bottom:4.2rem;left:0;right:0;display:flex;justify-content:center;gap:1.2rem}
 .dots i{width:2.8rem;height:2.8rem;border-radius:50%;background:#fff;cursor:pointer;transition:transform .3s var(--e),background .3s}
 .dots i.on{background:#999;transform:scale(1.15)}
@@ -46,7 +46,7 @@ svg{display:block}
 .sh button{color:var(--r);font:500 3.8rem Prompt}
 .row{display:flex;gap:4.8rem;overflow-x:auto;padding:1.4rem 3.7rem;scroll-padding-left:3.7rem;scroll-snap-type:x proximity;scrollbar-width:none}
 .row::-webkit-scrollbar{display:none}
-.cd{flex:0 0 40.5rem;height:55.7rem;border:.3rem solid var(--g);border-radius:5rem;background:#000 center/cover;display:grid;place-items:center;scroll-snap-align:start;animation:up .6s var(--e) both;animation-delay:calc(min(var(--i),10)*70ms)}
+.cd{flex:0 0 40.5rem;height:55.7rem;border:.3rem solid var(--g);border-radius:5rem;background:#000 center/cover;display:grid;place-items:center;scroll-snap-align:start;animation:up .6s var(--e) backwards;animation-delay:calc(min(var(--i),10)*70ms)}
 .cd svg{width:13.2rem;height:13.2rem;transition:transform .3s var(--e)}
 .cd:active svg{transform:scale(1.25)}
 nav{position:fixed;z-index:5;bottom:0;left:50%;transform:translateX(-50%);width:min(100vw,520px);display:grid;grid-template-columns:repeat(5,1fr);background:#000;border-top:.2rem solid #3a3a3a;padding:1.2rem 0 env(safe-area-inset-bottom,0px)}
@@ -72,7 +72,7 @@ nav .on svg{animation:pop .5s var(--e)}
 .ab img{width:100%;height:100%;object-fit:cover}
 .ab.on{border-color:var(--r);transform:scale(1.1)}
 .em{color:#777;font-size:3.2rem;text-align:center;padding:0 5rem}
-.mo{position:fixed;inset:0;z-index:20;display:flex;overflow:auto;padding:2rem;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);animation:fade .3s}
+.mo{position:fixed;inset:0;z-index:20;display:flex;overflow:auto;padding:2rem;background:rgba(0,0,0,.9);animation:fade .3s}
 .mo.out{opacity:0;transition:opacity .3s}
 .mc{position:relative;margin:auto;width:89.3rem;max-width:100%;padding:14.9rem 7.8rem 9.4rem;border-radius:6.2rem;background:#2d2d2d;overflow:hidden;animation:zoom .5s var(--e)}
 .mc>*{position:relative}
@@ -158,7 +158,7 @@ nav .on svg{animation:pop .5s var(--e)}
 .vs.l{left:6cqw}.vs.r{left:94.1cqw}.vs svg{width:max(20px,2.25cqw);height:max(20px,2.25cqw)}
 .tk{position:relative;width:100%;height:25cqh;display:flex;justify-content:center;touch-action:none}
 .tk b{position:relative;width:max(3px,.28cqw);height:100%;border-radius:3px;background:#7a7d84}
-.tk i{position:absolute;left:0;right:0;bottom:0;border-radius:3px;background:#fff}
+.tk i{position:absolute;left:0;right:0;top:0;bottom:0;border-radius:3px;background:#fff;transform-origin:50% 100%;transform:scaleY(0);will-change:transform}
 .vc{position:absolute;left:50%;top:50.5%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:5.2cqw}
 .vc svg{width:max(30px,2.75cqw);height:max(30px,2.75cqw)}.vc #pp svg{width:max(44px,4.6cqw);height:max(44px,4.6cqw)}
 .vp{position:absolute;top:76.9%;transform:translateY(-50%);left:max(3.7cqw,env(safe-area-inset-left,0px));right:max(3.7cqw,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:2.4cqw;font-size:max(12px,1.67cqw)}
@@ -359,15 +359,17 @@ const toast=m=>{const d=document.createElement('div');d.className='tst';d.textCo
 const esc=s=>s.replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 // Telas
 const gens=t=>[...new Set(DB.filter(x=>x.t==t).map(x=>x.g))],by=(t,g)=>DB.filter(x=>x.t==t&&x.g==g);
-const card=(x,i)=>`<button class="cd" data-id="${x.id}" aria-label="${x.n}" style="--i:${i};${x.p?`background-image:url('${x.p}')`:''}">${PLAYC}</button>`;
+const card=(x,i,lz)=>`<button class="cd" data-id="${x.id}" aria-label="${x.n}" style="--i:${i};${x.p&&!lz?`background-image:url('${x.p}')`:''}"${x.p&&lz?` data-bg="${x.p}"`:''}>${PLAYC}</button>`;
+const hyd=r=>r.querySelectorAll('[data-bg]').forEach(e=>{e.style.backgroundImage=`url('${e.dataset.bg}')`;e.removeAttribute('data-bg')});
+['pointerdown','wheel'].forEach(k=>addEventListener(k,e=>{const r=e.target.closest&&e.target.closest('.row');if(r)hyd(r)},{capture:true,passive:true}));
 const ROWMAX=20;// V1.15: limite por fileira; o resto aparece em "Ver Mais"
-const sec=(h,l,m)=>l.length?`<section class="sec"><div class="sh"><h2>${h}</h2>${m?`<button data-m="${m}">Ver Mais</button>`:''}</div><div class="row">${(m?l.slice(0,ROWMAX):l).map(card).join('')}</div></section>`:'';
+const sec=(h,l,m)=>l.length?`<section class="sec"><div class="sh"><h2>${h}</h2>${m?`<button data-m="${m}">Ver Mais</button>`:''}</div><div class="row">${(m?l.slice(0,ROWMAX):l).map((x,i)=>card(x,i,i>=4)).join('')}</div></section>`:'';
 const gv=(h,l,b)=>`<div class="gv"><div class="gh">${b?`<button class="bk" id="bk" aria-label="Voltar">${I('M15 5l-7 7 7 7')}</button>`:''}<h2>${h}</h2></div><div class="gr">${l.map((x,i)=>`<div>${card(x,i)}<p>${x.n}</p></div>`).join('')||'<p>Nada encontrado.</p>'}</div></div>`;
 const HB=['radial-gradient(circle at 50% 28%,#e0a93c,transparent 16%),radial-gradient(circle at 50% 55%,#5b3fd1,#1a1052 48%,#05010f)','radial-gradient(circle at 30% 30%,#ff3b3b,#4a0010 52%,#050005)','radial-gradient(circle at 70% 30%,#19c3b1,#0b3b4a 52%,#02080c)','radial-gradient(circle at 50% 40%,#ff9d2e,#5a1d00 55%,#060200)'];
 const HS=()=>{const h=DB.filter(x=>x.b);return(h.length?h:['f','s','a','f'].map((t,i)=>by(t,gens(t)[0])[i>2?1:0])).filter(Boolean).slice(0,4)};
 const hero=()=>{const h=HS();return `<div class="hero">${h.map((x,i)=>`<div class="sl${i?'':' on'}" style="background:${x.b?`url('${x.b}') center/cover`:HB[i%4]}">${x.b?'':`<div class="ht">${x.n}</div>`}</div>`).join('')}<button class="as">Assista</button><div class="dots">${h.map((_,i)=>`<i class="${i?'':'on'}" data-h="${i}"></i>`).join('')}</div></div>`};
 const sl=i=>{const L=$$('.sl'),D=$$('.dots i');if(!L.length)return;st.hi=i%L.length;L.forEach((e,k)=>e.classList.toggle('on',k==st.hi));D.forEach((e,k)=>e.classList.toggle('on',k==st.hi))};
-function hv(){clearInterval(st.iv);if(st.tab=='t'&&$('.hero'))st.iv=setInterval(()=>sl(st.hi+1),5000)}
+function hv(){clearInterval(st.iv);if(st.tab=='t'&&$('.hero'))st.iv=setInterval(()=>{if(!document.hidden&&!OV.length)sl(st.hi+1)},5000)}
 const prof=()=>{const f=DB.filter(x=>st.fav.includes(x.id));return `<div class="pv"><img class="av pa" src="${avSrc(st.av)}" alt=""><h2>Visitante</h2><p>Escolha seu avatar</p><div class="ag">${[0,1,2,3,4,5,6,...(S.g('avc',0)?[7]:[])].map(i=>`<button class="ab${i==st.av?' on':''}" data-a="${i}" aria-label="Avatar ${i+1}"><img src="${avSrc(i)}" alt=""></button>`).join('')}<button class="ab add" id="addp" aria-label="Adicionar foto da galeria">${I('M4 8h3l2-3h6l2 3h3v11H4zM12 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7')}</button></div></div>${f.length?sec('Meus Favoritos',f):'<p class="em">Toque no + ao assistir para adicionar aos favoritos.</p>'}`};
 // V1.18.0 (correcao): teste REAL de internet. No Android o navigator.onLine pode dizer "online" mesmo sem conexao.
 let NET=1,netT,netQ;const OFF=()=>!navigator.onLine||!NET;
@@ -471,12 +473,12 @@ function open(id){const x=cur=DB.find(i=>i.id==id)||XT.find(i=>i.id==id);if(!x)r
   let hT,drg=0;const shw=()=>{vb.classList.remove('hc');clearTimeout(hT);hT=setTimeout(()=>{if(vb.isConnected&&!drg&&!vb.classList.contains('ldg'))vb.classList.add('hc')},3000)};
   const fcs=()=>{try{vb.focus({preventScroll:true})}catch{}};
   const bl=()=>{if(!vb.isConnected){removeEventListener('blur',bl);return}setTimeout(()=>{if(document.activeElement===ef){shw();setTimeout(()=>{if(vb.isConnected)fcs()},250)}},0)};
-  addEventListener('blur',bl);vb.addEventListener('pointerdown',shw);fcs();
-  ef.onload=()=>setTimeout(()=>ldE(0),400);const oo=()=>ldE(1),on=()=>ldE(1);addEventListener('offline',oo);addEventListener('online',on);const t0=setTimeout(()=>ldE(0),20000);
-  const n=NP(),tv=$('#tv'),fv=p=>{$('#tv i').style.height=p*100+'%'};let ev=.5;
+  V._ac?.abort();const ac=V._ac=new AbortController(),sg={signal:ac.signal};addEventListener('blur',bl,sg);vb.addEventListener('pointerdown',shw);fcs();
+  ef.onload=()=>setTimeout(()=>ldE(0),400);const oo=()=>ldE(1),on=()=>ldE(1);addEventListener('offline',oo,sg);addEventListener('online',on,sg);const t0=V._t0=setTimeout(()=>ldE(0),20000);
+  const n=NP(),tv=$('#tv'),fv=p=>{$('#tv i').style.transform='scaleY('+p+')'};let ev=.5;
   if(n)n.getState().then(r=>{ev=r.volume;fv(ev)}).catch(()=>{});else $('.evs').style.display='none';fv(ev);
-  const sv=y=>{const R=tv.getBoundingClientRect();ev=Math.min(1,Math.max(0,1-(y-R.top)/R.height));fv(ev);if(n)n.setVolume({value:ev}).catch(()=>{})};
-  tv.onpointerdown=e=>{drg=1;shw();tv.setPointerCapture(e.pointerId);sv(e.clientY);tv.onpointermove=m=>sv(m.clientY)};tv.onpointerup=tv.onpointercancel=()=>{drg=0;shw();tv.onpointermove=null};
+  let rc=null,lastV=-1,raf=0;const sv=y=>{rc=rc||tv.getBoundingClientRect();ev=Math.min(1,Math.max(0,1-(y-rc.top)/rc.height));if(raf)return;raf=requestAnimationFrame(()=>{raf=0;fv(ev);const q=Math.round(ev*20)/20;if(n&&q!==lastV){lastV=q;n.setVolume({value:q}).catch(()=>{})}})};
+  tv.onpointerdown=e=>{rc=null;drg=1;shw();tv.setPointerCapture(e.pointerId);sv(e.clientY);tv.onpointermove=m=>sv(m.clientY)};tv.onpointerup=tv.onpointercancel=()=>{drg=0;shw();tv.onpointermove=null};
   $('#xb').onclick=()=>{clearTimeout(t0);clearTimeout(hT);removeEventListener('offline',oo);removeEventListener('online',on);removeEventListener('blur',bl);back()};return}
 
   V.innerHTML=`<div class="vb show" id="vb"><video id="vd" playsinline></video><div class="hud" id="gh"></div><div class="vl"><img src="${KON}" alt=""><span id="lt">Carregando...</span></div><div class="vu">
@@ -486,7 +488,7 @@ function open(id){const x=cur=DB.find(i=>i.id==id)||XT.find(i=>i.id==id);if(!x)r
   <button class="sk" id="sk">Pular abertura</button><button class="ul" id="ul" aria-label="Desbloquear">${I('M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4')}</button>
   <div class="vp"><span id="t1">0:00</span><input type="range" id="sb" min="0" max="1000" value="0" aria-label="Progresso"><span id="t2">0:00</span></div>
   <div class="vr"><button id="lk">${I('M6 11h12v10H6zM8 11V7a4 4 0 0 1 7.5-2')}Bloquear</button><button id="fl">${I(FSP)}<span>${fl?'Ajustar tela':'Preencher tela'}</span></button><button id="sp">${I(GAU)}<span>Velocidade (${SPD[si]}x)</span></button><button id="ql">${HD}<span>Resolução (${qd})</span></button>${ser?`<button id="pr">${I('M6 5h2v14H6zM20 5v14L9 12z',1)}Ep. Anterior</button><button id="nx">${I('M16 5h2v14h-2zM4 5v14l11-7z',1)}Próximo Ep.</button>`:''}</div></div></div>`;
-  const vd=$('#vd'),vb=$('#vb');vb.classList.toggle('fill',!!fl);const fillT=(id,p)=>{const f=$(id+' i');if(f)f.style.height=p*100+'%'};
+  const vd=$('#vd'),vb=$('#vb');vb.classList.toggle('fill',!!fl);const fillT=(id,p)=>{const f=$(id+' i');if(f)f.style.transform='scaleY('+p+')'};
   const setB=p=>{bv=p;const n=NP();if(n)n.setBrightness({value:Math.max(.02,p)}).catch(()=>{});else vd.style.filter=`brightness(${.4+p*1.2})`};
   const setV=p=>{vv=p;const n=NP();if(n){vd.volume=1;n.setVolume({value:p}).catch(()=>{})}else vd.volume=p};
   const hud=(k,p)=>{const h=$('#gh');h.innerHTML=`${I(k=='b'?SUN:p<.01?VOLX:VOL)}<span>${Math.round(p*100)}%</span><b><i style="width:${p*100}%"></i></b>`;h.classList.add('on');clearTimeout(h._t);h._t=setTimeout(()=>h.classList.remove('on'),1000)};
@@ -494,7 +496,7 @@ function open(id){const x=cur=DB.find(i=>i.id==id)||XT.find(i=>i.id==id);if(!x)r
   const T=()=>{clearTimeout(vb._t);if(!vb.classList.contains('show')){const n=NP();if(n)n.getState().then(r=>{vv=r.volume;fillT('#tv',vv)}).catch(()=>{})}vb.classList.add('show');if(!vd.paused)vb._t=setTimeout(()=>vb.classList.remove('show'),3500)};
   const ldg=on=>{vb.classList.toggle('ldg',on);$('#lt').textContent=navigator.onLine?'Carregando...':'Sem conexão'};
   const ld=(q,keep)=>{const t0=keep?vd.currentTime:0,w=keep?!vd.paused:true,u=U();vd.src=u[q]||Object.values(u)[0];vd.playbackRate=SPD[si];ldg(1);vd.onloadedmetadata=()=>{try{vd.currentTime=t0}catch{}w&&vd.play().catch(()=>{})}};
-  const vsl=(id,fn,v)=>{const k=$(id),f=$('i',k),set=y=>{const r=k.getBoundingClientRect(),p=Math.min(1,Math.max(0,1-(y-r.top)/r.height));f.style.height=p*100+'%';fn(p)};f.style.height=v*100+'%';k.onpointerdown=ev=>{k.setPointerCapture(ev.pointerId);set(ev.clientY)};k.onpointermove=ev=>{if(k.hasPointerCapture(ev.pointerId))set(ev.clientY)}};
+  const vsl=(id,fn,v)=>{const k=$(id),f=$('i',k),set=y=>{const r=k.getBoundingClientRect(),p=Math.min(1,Math.max(0,1-(y-r.top)/r.height));f.style.transform='scaleY('+p+')';fn(p)};f.style.transform='scaleY('+v+')';k.onpointerdown=ev=>{k.setPointerCapture(ev.pointerId);set(ev.clientY)};k.onpointermove=ev=>{if(k.hasPointerCapture(ev.pointerId))set(ev.clientY)}};
   vsl('#tb',p=>{setB(p);hud('b',p)},bv);vsl('#tv',p=>{setV(p);hud('v',p)},vv);
   let g=null,sw=0;const gEnd=()=>{g=null;setTimeout(()=>sw=0,60)};
   vb.addEventListener('pointerdown',ev=>{if(vb.classList.contains('lk')||ev.target.closest('button,input,.tk'))return;const r=vb.getBoundingClientRect(),x0=ev.clientX-r.left,L=x0<r.width/2;if(x0>r.width*.4&&x0<r.width*.6)return;g={y:ev.clientY,k:L?'b':'v',v:L?bv:vv,h:r.height,on:0}});
@@ -520,7 +522,7 @@ function open(id){const x=cur=DB.find(i=>i.id==id)||XT.find(i=>i.id==id);if(!x)r
   $('#cb').onclick=()=>{location.href='wvc-x-callback://open?url='+encodeURIComponent(vd.currentSrc||vd.src)+'&title='+encodeURIComponent(x.n);setTimeout(()=>{if(!document.hidden)toast('Instale o Web Video Caster para transmitir à TV')},1800)};
   if(ser){$('#pr').onclick=()=>step(-1);$('#nx').onclick=()=>step(1)}
   ld(qd);T()}
- const startP=()=>{play();if(!po){po=1;V.classList.add('on');OR(1);pushOv(()=>{po=0;V.classList.remove('on');OR(0);const v=$('#vd');if(v){v.onerror=null;v.pause();v.removeAttribute('src');v.load()}setTimeout(()=>{if(!po)V.innerHTML=''},500)})}};
+ const startP=()=>{play();if(!po){po=1;V.classList.add('on');OR(1);pushOv(()=>{po=0;V.classList.remove('on');OR(0);if(V._ac){V._ac.abort();V._ac=null}clearTimeout(V._t0);const v=$('#vd');if(v){v.onerror=null;v.pause();v.removeAttribute('src');v.load()}setTimeout(()=>{if(!po)V.innerHTML=''},500)})}};
  $('#pb').onclick=back;$('#hp2').onclick=startP;
  $('#fv').onclick=()=>{st.fav=st.fav.includes(x.id)?st.fav.filter(i=>i!=x.id):[...st.fav,x.id];S.s('fav',st.fav);fvd();toast(st.fav.includes(x.id)?'Adicionado aos favoritos':'Removido dos favoritos')};
  if(ser){$('#sn').onclick=ev=>{const b=ev.target.closest('[data-s]');if(!b)return;s=+b.dataset.s;e=0;snl();epl();cm()};$('#el').onclick=ev=>{const b=ev.target.closest('[data-e]');if(!b)return;e=+b.dataset.e;epl();cm();startP()}}
